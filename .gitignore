@@ -1,9 +1,5 @@
-/node_modules/
-/build/
-/npm-debug.log.*
-/dev/
-/output/
-/build*.zip
+main.lua
+Promise.tsproj
 /dev-script*.*
 .vscode/
 .idea/

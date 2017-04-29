@@ -1,0 +1,7 @@
+[res]
+[lib]
+[file]
+Promise.lua
+console.lua
+main.lua
+test.lua
