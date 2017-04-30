@@ -21,6 +21,14 @@ function bindSelf(fn, self)
   end
 end
 
+-- 隔离函数，为了防止回调过多导致爆栈需要隔离回调操作
+function asap(callback)
+  local co = coroutine.wrap(function()
+    callback()
+  end)
+  co()
+end
+
 -- 类
 local Promise = {
   setStackTraceback = function(value)
@@ -152,34 +160,35 @@ function handle(self, deferred)
     table.insert(self.deferreds, deferred)
     return
   end
-
-  local cb
-  if (self.PromiseStatus == RESOLVED) then
-    cb = deferred.onResolved
-  else
-    cb = deferred.onRejected
-  end
-  if (type(cb) == 'nil') then
+  asap(function()
+    local cb
     if (self.PromiseStatus == RESOLVED) then
-      deferred.resolve(self.PromiseValue)
+      cb = deferred.onResolved
     else
-      deferred.reject(self.PromiseValue)
+      cb = deferred.onRejected
     end
-    return
-  end
+    if (type(cb) == 'nil') then
+      if (self.PromiseStatus == RESOLVED) then
+        deferred.resolve(self.PromiseValue)
+      else
+        deferred.reject(self.PromiseValue)
+      end
+      return
+    end
 
-  local ret
-  local xpcallRes, xpcallErr = tryCatch(function()
-    -- 执行当前promise的状态转换事件处理函数
-    ret = cb(self.PromiseValue)
+    local ret
+    local xpcallRes, xpcallErr = tryCatch(function()
+      -- 执行当前promise的状态转换事件处理函数
+      ret = cb(self.PromiseValue)
+    end)
+    if (not xpcallRes) then
+      -- 修改promise链表中下一个promise对象的状态为rejected
+      deferred.reject(xpcallErr)
+      return
+    end
+    -- 修改promise链表中下一个promise对象的状态为resolved
+    deferred.resolve(ret)
   end)
-  if (not xpcallRes) then
-    -- 修改promise链表中下一个promise对象的状态为rejected
-    deferred.reject(xpcallErr)
-    return
-  end
-  -- 修改promise链表中下一个promise对象的状态为resolved
-  deferred.resolve(ret)
 end
 
 -- 对状态转换事件处理函数进行封装后，再传给执行函数
@@ -217,7 +226,5 @@ function catch(self, onRejected)
   -- then本身也会返回一个promise，实现promise链
   self.andThen(nil, onRejected)
 end
-
-
 
 return Promise
