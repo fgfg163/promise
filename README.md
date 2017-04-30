@@ -4,7 +4,7 @@ es6标准的promise实现，可以在lua 5.1和5.2环境中工作。
 由于then是lua的关键字，所以用andThen代替
 
 自动绑定self到addThen，无需手动传入:
-```
+```js
 local testPromise1 = Promise.new(function(resolve, reject)
   resolve('testPromise1')
 end);
@@ -14,7 +14,7 @@ testPromise1.andThen(function(res)
 end)
 ```
 
-```
+```js
 // 使用方法
 local Promise = require('Promise')
 
