@@ -23,9 +23,7 @@ end
 
 -- 隔离函数，为了防止回调过多导致爆栈需要隔离回调操作
 function asap(callback)
-  local co = coroutine.wrap(function()
-    callback()
-  end)
+  local co = coroutine.wrap(callback)
   co()
 end
 
