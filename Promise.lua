@@ -1,14 +1,19 @@
+--------------------------------------------------------------------------------------
+-- es2015 Promise for lua 5.1 and 5.2
+
+--------------------------------------------------------------------------------------
+
 local PENDING = 0
 local RESOLVED = 1
 local REJECTED = 2
 
 -- 是否需要显示stack traceback里的错误信息
 -- stack traceback错误信息很长，所以这个功能作为可选项
-local setStackTraceback = true
+local stackTraceback = true
 -- 封装了xpcall方法
 function tryCatch(cb)
   return xpcall(cb, function(e)
-    return setStackTraceback and
+    return stackTraceback and
         (e .. '\n' .. debug.traceback())
         or (e)
   end)
@@ -30,7 +35,7 @@ end
 -- 类
 local Promise = {
   setStackTraceback = function(value)
-    setStackTraceback = value
+    stackTraceback = value
   end
 }
 
@@ -130,6 +135,9 @@ end
 function reject(self, value)
   self.PromiseStatus = REJECTED
   self.PromiseValue = value
+  if (stackTraceback) then
+    self.PromiseValue = value .. '\n' .. debug.traceback()
+  end
   finale(self)
 end
 
