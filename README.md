@@ -89,6 +89,10 @@ promise = Promise.reject(reason)
 ```
 
 ChangeLog
+
+-- 2017.05.01 
+>  bugfix: traceback repetition repetition
+
 -- 2017.04.30 release v1.1 
 >  add README
 >  add stackTrackback on reject
