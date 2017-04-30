@@ -8,10 +8,12 @@ es6标准的promise实现，可以在lua 5.1和5.2环境中工作。
 local testPromise1 = Promise.new(function(resolve, reject)
   resolve('testPromise1')
 end);
+
 -- 已绑定this，无需使用testPromise1:andThen的形式
 testPromise1.andThen(function(res)
   print(res)
 end)
+
 ```
 
 ```lua
@@ -21,23 +23,27 @@ local Promise = require('Promise')
 -- 设置报错信息是否包含stack traceback，全局参数，只需要设置一次
 Promise.setStackTraceback(false)
 
+
 local testPromise1 = Promise.new(function(resolve, reject)
   print('(testPromise1) resolve')
   resolve('testPromise1')
 end);
+
 local testPromise2 = Promise.new(function(resolve, reject)
   print('(testPromise2) resolve')
   resolve('testPromise2')
 end);
 
+
 testPromise1.andThen(function(res)
-  console.log(res)
+  print(res)
   return 'then 1 return'
 end).andThen(function(res)
   print(res)
   return testPromise2
 end).andThen(function(res)
   print(res)
+  error('some error')
   return 'then 3 return'
 end).catch(function(err)
   print(err)
